@@ -25,11 +25,8 @@ locationData.direction = display.newText( "direction : %", locationData.xLocatio
 locationData.time = display.newText( "time : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .7, native.systemFont, 16 )
 
 local function handleButtonEvent( event )
-
-    if ( "ended" == event.phase ) then
-    composer.removeScene( "scenes.menu", true )
-    composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } )
-end
+    if ( "ended" == event.phase ) then 
+    composer.removeScene( "scenes.menu", true ) composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) end
 end
 --
 -- Start the composer event handlers
@@ -43,7 +40,6 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-
 
     local background = display.newRect( 0, 0, 570, 360)
     background.x = display.contentCenterX
