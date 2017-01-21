@@ -1,13 +1,17 @@
+local utility = require( "scripts.utility" )
+local sceneConfigData = require( "scripts.sceneConfigData" )
 local M = {}
 
-local calculateTargetLocationData = function (locationData)
+function calculateTargetLocationData (locationData)
 
-local currentLatitude = locationData.latitude
-local currentLongitude = locationData.longitude
+	local currentLatitude = locationData.latitude
+	local currentLongitude = locationData.longitude
 
 	--numbers to be replaced with random seed based on time
-	local latitudeDeltaSeed = -0.0004
-	local longitudeDeltaSeed = 0.0004
+	math.randomseed(utility.round(os.time(t), -1))
+
+	local latitudeDeltaSeed = math.random(sceneConfigData.lowerCoordinateDelta, sceneConfigData.upperCoordinateDelta) * 0.0001
+	local longitudeDeltaSeed = math.random(sceneConfigData.lowerCoordinateDelta, sceneConfigData.upperCoordinateDelta) * 0.0001
 
 	locationData.targetLatitude = currentLatitude + latitudeDeltaSeed
 	locationData.targetLongitude = currentLongitude + longitudeDeltaSeed
