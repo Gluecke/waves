@@ -4,7 +4,7 @@ local ads = require( "ads" )
 local store = require( "store" )
 local gameNetwork = require("gameNetwork")
 local utility = require( "scripts.utility" )
-local myData = require( "scripts.mydata" )
+local myData = require( "scripts.sceneConfigData" )
 local device = require( "scripts.device" )
 
 display.setStatusBar( display.HiddenStatusBar )

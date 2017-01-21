@@ -2,7 +2,7 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 local widget = require( "widget" )
-local myData = require( "scripts.mydata" )
+local myData = require( "scripts.sceneConfigData" )
 local utility = require( "scripts.utility" ) 
 local device = require( "scripts.device" )
 

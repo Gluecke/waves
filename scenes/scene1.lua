@@ -3,14 +3,16 @@ local scene = composer.newScene()
 
 local widget = require( "widget" )
 local utility = require( "scripts.utility" )
-local myData = require( "scripts.mydata" )
+local sceneConfigData = require( "scripts.sceneConfigData" )
 local timeService = require( "scripts.timeService" )
 local locationHandler = require( "scripts.locationHandler" )
+local adjustColorService = require("scripts.adjustColorService")
 
 local params
 
 local xDisplay = display.contentWidth
 local yDisplay = display.contentHeight
+
 
 --text for displaying location information
 local locationData = {}
@@ -24,6 +26,21 @@ locationData.speed = display.newText( "speed : %", locationData.xLocationDisplay
 locationData.direction = display.newText( "direction : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .6, native.systemFont, 16 )
 locationData.time = display.newText( "time : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .7, native.systemFont, 16 )
 
+
+--var to be used for time before player dies
+local timeToRed 
+
+
+--vars related to indicator background
+local indicatorBackground
+
+local indicatorBackgroundColors = {}
+
+local indicatorBackgroundRedShiftTimerDelay = 100
+local incrementRed
+local indicatorBackgroundRedShiftTimer
+
+
 local function handleButtonEvent( event )
     if ( "ended" == event.phase ) then 
     composer.removeScene( "scenes.menu", true ) composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) end
@@ -31,44 +48,23 @@ end
 --
 -- Start the composer event handlers
 --
+
 function scene:create( event )
     local sceneGroup = self.view
 
     params = event.params
-    
-    --
-    -- setup a page background, really not that important though composer
-    -- crashes out if there isn't a display object in the view.
-    --
 
-    local background = display.newRect( 0, 0, 570, 360)
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
-    background:setFillColor( 0, 0, 0 )
-    sceneGroup:insert(background)
+     -- time before player dies
+     local t = os.date( '*t' )  -- get table of current date and time
+     math.randomseed(utility.round(os.time(t), -1))
+     timeToRed = math.random( sceneConfigData.lowerBoundTimeToRed, sceneConfigData.upperBoundTimeToRed )
 
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Done",
-        width = 100,
-        height = 32,
-        onEvent = handleButtonEvent
-        })
-    doneButton.x = display.contentCenterX
-    doneButton.y = display.contentHeight - 40
-    sceneGroup:insert( doneButton )
+     --amount needed to incredment red rgb value to get to 1 in the timeToRed seconds
+     incrementRed = (1 / (timeToRed * (1000 / indicatorBackgroundRedShiftTimerDelay)))
 
-    sceneGroup:insert(locationData.latitude)
-    sceneGroup:insert(locationData.longitude)
-    sceneGroup:insert(locationData.altitude)
-    sceneGroup:insert(locationData.accuracy)
-    sceneGroup:insert(locationData.speed)
-    sceneGroup:insert(locationData.direction)
-    sceneGroup:insert(locationData.time)
 
-     -- Keep track of time in seconds
      local clockProperties = {}
-     clockProperties.secondsLeft = math.random( 75, 120 )
+     clockProperties.secondsLeft = timeToRed
      local initialMinutes = math.floor(  clockProperties.secondsLeft / 60 )
      local initialSeconds =  clockProperties.secondsLeft % 60
 
@@ -82,6 +78,45 @@ function scene:create( event )
      
      local countDownTimer = timer.performWithDelay( 1000, function() timeService.updateTime(clockProperties) end, 0 )
 
+     -- local ambientBackground = display.newRect( 0, 0, xDisplay, yDisplay * .5)
+     -- ambientBackground.x = display.contentCenterX
+     -- ambientBackground.y = display.contentCenterY
+     -- ambientBackground:setFillColor( 255, 255, 255 )
+     -- sceneGroup:insert(ambientBackground)
+
+     indicatorBackground = display.newRect( 0, 0, xDisplay, yDisplay)
+     indicatorBackground.x = display.contentCenterX
+     indicatorBackground.y = display.contentCenterY
+
+     indicatorBackgroundColors.r = sceneConfigData.r
+     indicatorBackgroundColors.g = sceneConfigData.g
+     indicatorBackgroundColors.b = sceneConfigData.b
+     indicatorBackgroundColors.a = sceneConfigData.a
+
+     indicatorBackground:setFillColor( indicatorBackgroundColors.r,
+        indicatorBackgroundColors.g, 
+        indicatorBackgroundColors.b,
+        indicatorBackgroundColors.a)
+     sceneGroup:insert(indicatorBackground)
+
+     local doneButton = widget.newButton({
+        id = "button1",
+        label = "Done",
+        width = 100,
+        height = 32,
+        onEvent = handleButtonEvent
+        })
+     doneButton.x = display.contentCenterX
+     doneButton.y = display.contentHeight - 40
+     sceneGroup:insert( doneButton )
+
+     sceneGroup:insert(locationData.latitude)
+     sceneGroup:insert(locationData.longitude)
+     sceneGroup:insert(locationData.altitude)
+     sceneGroup:insert(locationData.accuracy)
+     sceneGroup:insert(locationData.speed)
+     sceneGroup:insert(locationData.direction)
+     sceneGroup:insert(locationData.time)
  end
 
  function scene:show( event )
@@ -91,13 +126,21 @@ function scene:create( event )
 
     if event.phase == "did" then
 
-    end
+     indicatorBackgroundRedShiftTimer = timer.performWithDelay( indicatorBackgroundRedShiftTimerDelay, 
+        function() 
+           indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
+           adjustColorService.adjustObjectColor(indicatorBackground, indicatorBackgroundColors) 
+           end,
+           0 )
+
+ end
 end
 
 function scene:hide( event )
     local sceneGroup = self.view
     
     if event.phase == "will" then
+        timer.cancel(indicatorBackgroundRedShiftTimer)
     end
 
 end
@@ -117,8 +160,8 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
-function forwardLocation(event) 
+function forwardToLocationHandler(event) 
     locationHandler.locationHandler(event, locationData)
 end
-Runtime:addEventListener( "location", forwardLocation )
+Runtime:addEventListener( "location", forwardToLocationHandler )
 return scene

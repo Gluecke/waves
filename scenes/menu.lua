@@ -7,7 +7,7 @@ local ads = require( "ads" )
 
 local params
 
-local myData = require( "scripts.mydata" )
+local sceneConfigData = require( "scripts.sceneConfigData" )
 
 local function handlePlayButtonEvent( event )
     if ( "ended" == event.phase ) then
