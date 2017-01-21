@@ -17,7 +17,7 @@ b = boundColorToLimitOfOne(colors.b)
 a = boundColorToLimitOfOne(colors.a)
 
 objectToChangeColor:setFillColor(r, g, b, a)
-print("r: " .. r .. " g: " .. g .. " b: " .. b .. " a: " .. a)
+-- print("r: " .. r .. " g: " .. g .. " b: " .. b .. " a: " .. a)
 end
 
 M.adjustObjectColor = adjustObjectColor

@@ -16,20 +16,20 @@ local yDisplay = display.contentHeight
 
 --text for displaying location information
 local locationData = {}
-locationData.xLocationDisplay = xDisplay * .5
-locationData.yLocationDisplay = yDisplay;
-locationData.latitude = display.newText( "latitude : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .1, native.systemFont, 16 )
-locationData.longitude = display.newText( "longitude : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .2, native.systemFont, 16 )
-locationData.altitude = display.newText( "altitude : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .3, native.systemFont, 16 )
-locationData.accuracy = display.newText( "accuracy : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
-locationData.speed = display.newText( "speed : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .5, native.systemFont, 16 )
-locationData.direction = display.newText( "direction : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .6, native.systemFont, 16 )
-locationData.time = display.newText( "time : %", locationData.xLocationDisplay, locationData.yLocationDisplay * .7, native.systemFont, 16 )
 
+locationData.xLocationDisplay = xDisplay * .5
+locationData.yLocationDisplay = yDisplay
+
+locationData.latitudeText = display.newText( "latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .1, native.systemFont, 16 )
+locationData.longitudeText = display.newText( "longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .2, native.systemFont, 16 )
+locationData.targetLatitudeText = display.newText( "target latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
+locationData.targetLongitudeText = display.newText( "target longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .45, native.systemFont, 16 )
+locationData.distanceText = display.newText( "distance : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .3, native.systemFont, 16 )
 
 --var to be used for time before player dies
+local clockProperties = {}
+local countDownTimer
 local timeToRed 
-
 
 --vars related to indicator background
 local indicatorBackground
@@ -43,7 +43,9 @@ local indicatorBackgroundRedShiftTimer
 
 local function handleButtonEvent( event )
     if ( "ended" == event.phase ) then 
-    composer.removeScene( "scenes.menu", true ) composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) end
+    composer.removeScene( "scenes.menu", true ) 
+    composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) 
+end
 end
 --
 -- Start the composer event handlers
@@ -51,6 +53,8 @@ end
 
 function scene:create( event )
     local sceneGroup = self.view
+
+    print("creating scene1 scene...")
 
     params = event.params
 
@@ -62,8 +66,6 @@ function scene:create( event )
      --amount needed to incredment red rgb value to get to 1 in the timeToRed seconds
      incrementRed = (1 / (timeToRed * (1000 / indicatorBackgroundRedShiftTimerDelay)))
 
-
-     local clockProperties = {}
      clockProperties.secondsLeft = timeToRed
      local initialMinutes = math.floor(  clockProperties.secondsLeft / 60 )
      local initialSeconds =  clockProperties.secondsLeft % 60
@@ -76,8 +78,6 @@ function scene:create( event )
 
      sceneGroup:insert(clockProperties.clockText)
      
-     local countDownTimer = timer.performWithDelay( 1000, function() timeService.updateTime(clockProperties) end, 0 )
-
      -- local ambientBackground = display.newRect( 0, 0, xDisplay, yDisplay * .5)
      -- ambientBackground.x = display.contentCenterX
      -- ambientBackground.y = display.contentCenterY
@@ -110,13 +110,11 @@ function scene:create( event )
      doneButton.y = display.contentHeight - 40
      sceneGroup:insert( doneButton )
 
-     sceneGroup:insert(locationData.latitude)
-     sceneGroup:insert(locationData.longitude)
-     sceneGroup:insert(locationData.altitude)
-     sceneGroup:insert(locationData.accuracy)
-     sceneGroup:insert(locationData.speed)
-     sceneGroup:insert(locationData.direction)
-     sceneGroup:insert(locationData.time)
+     sceneGroup:insert(locationData.latitudeText)
+     sceneGroup:insert(locationData.longitudeText)
+     sceneGroup:insert(locationData.distanceText)
+     sceneGroup:insert(locationData.targetLatitudeText)
+     sceneGroup:insert(locationData.targetLongitudeText)
  end
 
  function scene:show( event )
@@ -124,15 +122,30 @@ function scene:create( event )
 
     params = event.params
 
+    print("showing scene1 scene...")
+
     if event.phase == "did" then
 
-     indicatorBackgroundRedShiftTimer = timer.performWithDelay( indicatorBackgroundRedShiftTimerDelay, 
-        function() 
-           indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
-           adjustColorService.adjustObjectColor(indicatorBackground, indicatorBackgroundColors) 
-           end,
-           0 )
+        print("making scene1 timers...")
+        if indicatorBackgroundRedShiftTimer == nill then
+         indicatorBackgroundRedShiftTimer = timer.performWithDelay( indicatorBackgroundRedShiftTimerDelay, 
+            function() 
+               indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
+               adjustColorService.adjustObjectColor(indicatorBackground, indicatorBackgroundColors) 
+               end,
+               0 )
+     end
 
+     if countDownTimer == nill then
+         countDownTimer = timer.performWithDelay( 1000, function() 
+            timeService.updateTime(clockProperties) 
+            if clockProperties.secondsLeft < 1 then
+                print("scene1 going to startNewWave scene...")
+                composer.removeScene( "scenes.startNewWave", true )
+                composer.gotoScene("scenes.startNewWave", { effect = "crossFade", time = 333 })
+            end
+            end, timeToRed )
+     end
  end
 end
 
@@ -140,7 +153,11 @@ function scene:hide( event )
     local sceneGroup = self.view
     
     if event.phase == "will" then
+        print("canceling scene1 timers...")
         timer.cancel(indicatorBackgroundRedShiftTimer)
+        indicatorBackgroundRedShiftTimer = nil
+        timer.cancel(countDownTimer)
+        countDownTimer = nil
     end
 
 end
