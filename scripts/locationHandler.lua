@@ -8,26 +8,26 @@ local locationHandler = function( event, locationData)
         print( "Location error: " .. tostring( event.errorMessage ) )
     else
         local latitudeText = string.format( '%.4f', event.latitude )
-        locationData.latitude.text = locationData.latitude.text .. latitudeText
+        locationData.latitude.text = string.format("latitude : %s" , latitudeText)
         
         local longitudeText = string.format( '%.4f', event.longitude )
-        locationData.longitude.text = locationData.longitude.text .. longitudeText
+        locationData.longitude.text = string.format("longitude : %s" , longitudeText)
         
         local altitudeText = string.format( '%.3f', event.altitude )
-        locationData.altitude.text = locationData.altitude.text .. altitudeText
+        locationData.altitude.text = string.format("altitude : %s", altitudeText)
         
         local accuracyText = string.format( '%.3f', event.accuracy )
-        locationData.accuracy.text = locationData.accuracy.text .. accuracyText
+        locationData.accuracy.text = string.format("accuracy : %s" , accuracyText)
         
         local speedText = string.format( '%.3f', event.speed )
-        locationData.speed.text = locationData.speed.text .. speedText
+        locationData.speed.text = string.format("speed : %s" ,  speedText)
         
         local directionText = string.format( '%.3f', event.direction )
-        locationData.direction.text = locationData.direction.text .. directionText
+        locationData.direction.text = string.format("direction : %s" ,  directionText)
         
         -- Note that 'event.time' is a Unix-style timestamp, expressed in seconds since Jan. 1, 1970
         local timeText = string.format( '%.0f', event.time )
-        locationData.time.text = locationData.time.text .. timeText
+        locationData.time.text = string.format("time : %s" ,  timeText)
     end
 end
 
