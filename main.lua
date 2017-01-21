@@ -35,41 +35,6 @@ if myData.settings.bestScore == nil then
     myData.settings.bestScore = 0
 end
 
---
--- Initialize ads
---
-
---
--- Put your Ad listener and init code here
---
-
---
--- Initialize in app purchases
---
-
---
--- Put your IAP code here
---
-
-
---
--- Initialize gameNetwork
---
-
---
--- Put your gameNetwork login handling code here
---
-
---
--- Load your global sounds here
--- Load scene specific sounds in the scene
---
--- myData.splatSound = audio.load("audio/splat.wav")
---
-
---
--- Other system events
---
 local function onKeyEvent( event )
 
     local phase = event.phase

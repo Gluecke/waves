@@ -13,6 +13,11 @@ settings =
             "android.permission.WRITE_EXTERNAL_STORAGE",
             "com.android.vending.BILLING",
             "com.android.vending.CHECK_LICENSE",
+            -- Permission to retrieve current location from the GPS
+            "android.permission.ACCESS_FINE_LOCATION",
+ 
+            -- Permission to retrieve current location from WiFi or cellular service
+            "android.permission.ACCESS_COARSE_LOCATION"
         },
         googlePlayGamesAppId = "xxxxxxxxxxxx",
         --largeHeap = true
