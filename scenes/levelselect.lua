@@ -4,29 +4,37 @@ local scene = composer.newScene()
 local widget = require( "widget" )
 local utility = require( "scripts.utility" )
 local myData = require( "scripts.mydata" )
+local timeService = require( "scripts.timeService" )
+local locationHandler = require( "scripts.locationHandler" )
 
 local params
 
 local xDisplay = display.contentWidth
 local yDisplay = display.contentHeight
 
-local xLocationDisplay = xDisplay * .5
-local yLocationDisplay = yDisplay;
-latitude = display.newText( "latitude :", xLocationDisplay, yLocationDisplay * .1, native.systemFont, 16 )
-latitudeRef = latitude
-longitude = display.newText( "longitude :", xLocationDisplay, yLocationDisplay * .2, native.systemFont, 16 )
-altitude = display.newText( "altitude :", xLocationDisplay, yLocationDisplay * .3, native.systemFont, 16 )
-accuracy = display.newText( "accuracy :", xLocationDisplay, yLocationDisplay * .4, native.systemFont, 16 )
-speed = display.newText( "speed :", xLocationDisplay, yLocationDisplay * .5, native.systemFont, 16 )
-direction = display.newText( "direction :", xLocationDisplay, yLocationDisplay * .6, native.systemFont, 16 )
-time = display.newText( "time :", xLocationDisplay, yLocationDisplay * .7, native.systemFont, 16 )
+--text for displaying location information
+local locationData = {}
+locationData.xLocationDisplay = xDisplay * .5
+locationData.yLocationDisplay = yDisplay;
+locationData.latitude = display.newText( "latitude :", locationData.xLocationDisplay, locationData.yLocationDisplay * .1, native.systemFont, 16 )
+locationData.longitude = display.newText( "longitude :", locationData.xLocationDisplay, locationData.yLocationDisplay * .2, native.systemFont, 16 )
+locationData.altitude = display.newText( "altitude :", locationData.xLocationDisplay, locationData.yLocationDisplay * .3, native.systemFont, 16 )
+locationData.accuracy = display.newText( "accuracy :", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
+locationData.speed = display.newText( "speed :", locationData.xLocationDisplay, locationData.yLocationDisplay * .5, native.systemFont, 16 )
+locationData.direction = display.newText( "direction :", locationData.xLocationDisplay, locationData.yLocationDisplay * .6, native.systemFont, 16 )
+locationData.time = display.newText( "time :", locationData.xLocationDisplay, locationData.yLocationDisplay * .7, native.systemFont, 16 )
 
  -- Keep track of time in seconds
- local secondsLeft = math.random( 75, 120 )
- local initialMinutes = math.floor( secondsLeft / 60 )
- local initialSeconds = secondsLeft % 60
+ local clockProperties = {}
+ clockProperties.secondsLeft = math.random( 75, 120 )
+ local initialMinutes = math.floor(  clockProperties.secondsLeft / 60 )
+ local initialSeconds =  clockProperties.secondsLeft % 60
 
- local clockText = display.newText(string.format( "%02d:%02d", initialMinutes, initialSeconds), display.contentCenterX, yDisplay * .1, native.systemFont, yDisplay * .09)
+ clockProperties.clockText = display.newText(string.format( "%02d:%02d", initialMinutes, initialSeconds), 
+    display.contentCenterX, 
+    yDisplay * .1, 
+    native.systemFont, 
+    yDisplay * .09)
 
  local function handleButtonEvent( event )
 
@@ -76,14 +84,14 @@ function scene:create( event )
     doneButton.y = display.contentHeight - 40
     sceneGroup:insert( doneButton )
 
-    sceneGroup:insert(latitude)
-    sceneGroup:insert(longitude)
-    sceneGroup:insert(altitude)
-    sceneGroup:insert(accuracy)
-    sceneGroup:insert(speed)
-    sceneGroup:insert(direction)
-    sceneGroup:insert(time)
-    sceneGroup:insert(clockText)
+    sceneGroup:insert(locationData.latitude)
+    sceneGroup:insert(locationData.longitude)
+    sceneGroup:insert(locationData.altitude)
+    sceneGroup:insert(locationData.accuracy)
+    sceneGroup:insert(locationData.speed)
+    sceneGroup:insert(locationData.direction)
+    sceneGroup:insert(locationData.time)
+    sceneGroup:insert(clockProperties.clockText)
 end
 
 function scene:show( event )
@@ -109,54 +117,8 @@ function scene:destroy( event )
     
 end
 
-
-local locationHandler = function( event )
- 
-    -- Check for error (user may have turned off location services)
-    if ( event.errorCode ) then
-        native.showAlert( "GPS Location Error", event.errorMessage, {"OK"} )
-        print( "Location error: " .. tostring( event.errorMessage ) )
-    else
-        local latitudeText = string.format( '%.4f', event.latitude )
-        latitude.text = latitude.text .. latitudeText
-        
-        local longitudeText = string.format( '%.4f', event.longitude )
-        longitude.text = longitude.text .. longitudeText
-        
-        local altitudeText = string.format( '%.3f', event.altitude )
-        altitude.text = altitude.text .. altitudeText
-        
-        local accuracyText = string.format( '%.3f', event.accuracy )
-        accuracy.text = accuracy.text .. accuracyText
-        
-        local speedText = string.format( '%.3f', event.speed )
-        speed.text = speed.text .. speedText
-        
-        local directionText = string.format( '%.3f', event.direction )
-        direction.text = direction.text .. directionText
-        
-        -- Note that 'event.time' is a Unix-style timestamp, expressed in seconds since Jan. 1, 1970
-        local timeText = string.format( '%.0f', event.time )
-        time.text = time.text .. timeText
-    end
-end
-
-
-local function updateTime()
-    -- decrement the number of seconds
-    secondsLeft = secondsLeft - 1
-    
-    -- time is tracked in seconds.  We need to convert it to minutes and seconds
-    local minutes = math.floor( secondsLeft / 60 )
-    local seconds = secondsLeft % 60
-    
-    -- make it a string using string format.  
-    local timeDisplay = string.format( "%02d:%02d", minutes, seconds )
-    clockText.text = timeDisplay
-end
-
 -- run them timer
-local countDownTimer = timer.performWithDelay( 1000, function() updateTime() end, 0 )
+local countDownTimer = timer.performWithDelay( 1000, function() timeService.updateTime(clockProperties) end, 0 )
 
 ---------------------------------------------------------------------------------
 -- END OF YOUR IMPLEMENTATION
@@ -166,5 +128,8 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 -- Activate location listener
-Runtime:addEventListener( "location", locationHandler )
+function forwardLocation(event) 
+    locationHandler.locationHandler(event, locationData)
+end
+Runtime:addEventListener( "location", forwardLocation )
 return scene
