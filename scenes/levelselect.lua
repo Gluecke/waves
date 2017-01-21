@@ -15,25 +15,25 @@ local yLocationDisplay = yDisplay;
 latitude = display.newText( "latitude :", xLocationDisplay, yLocationDisplay * .1, native.systemFont, 16 )
 latitudeRef = latitude
 longitude = display.newText( "longitude :", xLocationDisplay, yLocationDisplay * .2, native.systemFont, 16 )
- altitude = display.newText( "altitude :", xLocationDisplay, yLocationDisplay * .3, native.systemFont, 16 )
- accuracy = display.newText( "accuracy :", xLocationDisplay, yLocationDisplay * .4, native.systemFont, 16 )
- speed = display.newText( "speed :", xLocationDisplay, yLocationDisplay * .5, native.systemFont, 16 )
- direction = display.newText( "direction :", xLocationDisplay, yLocationDisplay * .6, native.systemFont, 16 )
- time = display.newText( "time :", xLocationDisplay, yLocationDisplay * .7, native.systemFont, 16 )
+altitude = display.newText( "altitude :", xLocationDisplay, yLocationDisplay * .3, native.systemFont, 16 )
+accuracy = display.newText( "accuracy :", xLocationDisplay, yLocationDisplay * .4, native.systemFont, 16 )
+speed = display.newText( "speed :", xLocationDisplay, yLocationDisplay * .5, native.systemFont, 16 )
+direction = display.newText( "direction :", xLocationDisplay, yLocationDisplay * .6, native.systemFont, 16 )
+time = display.newText( "time :", xLocationDisplay, yLocationDisplay * .7, native.systemFont, 16 )
 
  -- Keep track of time in seconds
-local secondsLeft = math.random( 75, 120 )
-local initialMinutes = math.floor( secondsLeft / 60 )
-local initialSeconds = secondsLeft % 60
+ local secondsLeft = math.random( 75, 120 )
+ local initialMinutes = math.floor( secondsLeft / 60 )
+ local initialSeconds = secondsLeft % 60
 
-local clockText = display.newText(string.format( "%02d:%02d", initialMinutes, initialSeconds), display.contentCenterX, yDisplay * .1, native.systemFont, yDisplay * .09)
+ local clockText = display.newText(string.format( "%02d:%02d", initialMinutes, initialSeconds), display.contentCenterX, yDisplay * .1, native.systemFont, yDisplay * .09)
 
-local function handleButtonEvent( event )
+ local function handleButtonEvent( event )
 
     if ( "ended" == event.phase ) then
-        composer.removeScene( "scenes.menu", false )
-        composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } )
-    end
+    composer.removeScene( "scenes.menu", false )
+    composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } )
+end
 end
 
 local function handleLevelSelect( event )
@@ -52,7 +52,7 @@ function scene:create( event )
     local sceneGroup = self.view
 
     params = event.params
-        
+    
     --
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
@@ -71,7 +71,7 @@ function scene:create( event )
         width = 100,
         height = 32,
         onEvent = handleButtonEvent
-    })
+        })
     doneButton.x = display.contentCenterX
     doneButton.y = display.contentHeight - 40
     sceneGroup:insert( doneButton )
@@ -109,7 +109,7 @@ function scene:destroy( event )
     
 end
 
- 
+
 local locationHandler = function( event )
  
     -- Check for error (user may have turned off location services)
@@ -119,22 +119,22 @@ local locationHandler = function( event )
     else
         local latitudeText = string.format( '%.4f', event.latitude )
         latitude.text = latitude.text .. latitudeText
- 
+        
         local longitudeText = string.format( '%.4f', event.longitude )
         longitude.text = longitude.text .. longitudeText
- 
+        
         local altitudeText = string.format( '%.3f', event.altitude )
         altitude.text = altitude.text .. altitudeText
- 
+        
         local accuracyText = string.format( '%.3f', event.accuracy )
         accuracy.text = accuracy.text .. accuracyText
- 
+        
         local speedText = string.format( '%.3f', event.speed )
         speed.text = speed.text .. speedText
- 
+        
         local directionText = string.format( '%.3f', event.direction )
         direction.text = direction.text .. directionText
- 
+        
         -- Note that 'event.time' is a Unix-style timestamp, expressed in seconds since Jan. 1, 1970
         local timeText = string.format( '%.0f', event.time )
         time.text = time.text .. timeText
