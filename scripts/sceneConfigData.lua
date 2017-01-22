@@ -6,9 +6,9 @@ M.a = .5
 M.lowerBoundTimeToRed = 120
 M.upperBoundTimeToRed = 150
 M.lowerCoordinateDelta = 1
-M.upperCoordinateDelta = 3
+M.upperCoordinateDelta = 2
 M.settings = {}
 M.settings.soundOn = true
 M.settings.musicOn = true
-M.settings.debugOn = false
+M.settings.debugOn = true
 return M

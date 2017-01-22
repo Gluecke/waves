@@ -70,12 +70,6 @@ function scene:create( event )
      checkForDebugMode(clockProperties.clockText)
 
      sceneGroup:insert(clockProperties.clockText)
-     
-     -- local ambientBackground = display.newRect( 0, 0, xDisplay, yDisplay * .5)
-     -- ambientBackground.x = display.contentCenterX
-     -- ambientBackground.y = display.contentCenterY
-     -- ambientBackground:setFillColor( 255, 255, 255 )
-     -- sceneGroup:insert(ambientBackground)
 
      indicatorBackground = display.newRect( 0, 0, xDisplay, yDisplay)
      indicatorBackground.x = display.contentCenterX
@@ -146,7 +140,7 @@ function scene:create( event )
 end
 
 
- function checkIfBlinkingShouldChange( event ) 
+function checkIfBlinkingShouldChange( event ) 
     if locationData ~= nil and locationData.hasCoordinates ~= nil then
         local ratioToConvertDistanceToFrequency = 1000 * 2
         local frequency = utility.round(((8 / locationData.maxDistance) * locationData.distance) * ratioToConvertDistanceToFrequency, -3)
@@ -214,9 +208,14 @@ function scene:show( event )
        countDownTimer = timer.performWithDelay( 1000, function() 
         timeService.updateTime(clockProperties) 
         if clockProperties.secondsLeft < 1 then
-            print("scene1 going to startNewWave scene...")
-            composer.removeScene( "scenes.startNewWave", true )
-            composer.gotoScene("scenes.startNewWave", { effect = "crossFade", time = 333 })
+            if locationData.frequency ~= nil and locationData.frequency < 600 then
+                print("scene1 going to startNewWave scene...")
+                composer.removeScene( "scenes.startNewWave", true )
+                composer.gotoScene("scenes.startNewWave", { effect = "crossFade", time = 333 })
+            else
+                composer.removeScene( "scenes.menu", true ) 
+                composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) 
+            end
         end
     end, timeToRed )
    end
@@ -236,14 +235,14 @@ function scene:hide( event )
         countDownTimer = nil
         locationData = nil
 
-                    if indicatorBackgroundTrasistion ~= nil then
-                transition.cancel(indicatorBackgroundTrasistion)
-                indicatorBackgroundTrasistion = nil
-            end
-            if indicatorBackground ~= nil then
-                indicatorBackground:removeSelf()
-                indicatorBackground = nil
-            end
+        if indicatorBackgroundTrasistion ~= nil then
+            transition.cancel(indicatorBackgroundTrasistion)
+            indicatorBackgroundTrasistion = nil
+        end
+        if indicatorBackground ~= nil then
+            indicatorBackground:removeSelf()
+            indicatorBackground = nil
+        end
     end
 
 end
@@ -251,14 +250,14 @@ end
 function scene:destroy( event )
     local sceneGroup = self.view
 
-                if indicatorBackgroundTrasistion ~= nil then
-                transition.cancel(indicatorBackgroundTrasistion)
-                indicatorBackgroundTrasistion = nil
-            end
-            if indicatorBackground ~= nil then
-                indicatorBackground:removeSelf()
-                indicatorBackground = nil
-            end
+    if indicatorBackgroundTrasistion ~= nil then
+        transition.cancel(indicatorBackgroundTrasistion)
+        indicatorBackgroundTrasistion = nil
+    end
+    if indicatorBackground ~= nil then
+        indicatorBackground:removeSelf()
+        indicatorBackground = nil
+    end
     
 end
 
