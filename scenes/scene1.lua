@@ -7,7 +7,6 @@ local sceneConfigData = require( "scripts.sceneConfigData" )
 local timeService = require( "scripts.timeService" )
 local locationHandler = require( "scripts.locationHandler" )
 local adjustColorService = require("scripts.adjustColorService")
-local blinkObject = require("scripts.blinkObject")
 
 local params
 
@@ -35,9 +34,9 @@ local indicatorBackgroundRedShiftTimer
 
 local function handleButtonEvent( event )
     if ( "ended" == event.phase ) then 
-    composer.removeScene( "scenes.menu", true ) 
-    composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) 
-end
+        composer.removeScene( "scenes.menu", true ) 
+        composer.gotoScene( "scenes.menu", { effect = "crossFade", time = 333 } ) 
+    end
 end
 --
 -- Start the composer event handlers
@@ -97,7 +96,7 @@ function scene:create( event )
         width = 100,
         height = 32,
         onEvent = handleButtonEvent
-        })
+    })
      doneButton.x = display.contentCenterX
      doneButton.y = display.contentHeight - 40
      sceneGroup:insert( doneButton )
@@ -121,23 +120,44 @@ function scene:create( event )
      sceneGroup:insert(locationData.distanceText)
      sceneGroup:insert(locationData.targetLatitudeText)
      sceneGroup:insert(locationData.targetLongitudeText)
+     sceneGroup:insert(locationData.blinkText)
 
-     transition.blink( indicatorBackground, { time=1500 } )
+     print("rounded : " .. utility.round(26500, -3))
 
  end
 
  function checkIfBlinkingShouldChange( event ) 
-
     if locationData ~= nil and locationData.hasCoordinates ~= nil then
-        local frequency = ((3 / locationData.maxDistance) * locationData.distance) * 1000
-        locationData.blinkText.text = frequency
-        transition.blink( indicatorBackground, { time=frequency } )
+        local ratioToConvertDistanceToFrequency = 10000
+        local frequency = utility.round(((6 / locationData.maxDistance) * locationData.distance) * ratioToConvertDistanceToFrequency, -2)
+        locationData.blinkText.text = "new frequency : " .. frequency
+        if locationData.frequency == nil or frequency ~= locationData.frequency then
+            if locationData.frequency ~= nil then
+                locationData.blinkText.text = "new frequency : " .. frequency .. " old frequency : " .. locationData.frequency
+            end
+            locationData.frequency = frequency
+            if indicatorBackgroundTrasistion ~= nil then
+                transition.cancel(indicatorBackgroundTrasistion)
+                indicatorBackgroundTrasistion = nil
+            end
+            indicatorBackground:removeSelf()
+            indicatorBackground = nil
+
+            indicatorBackground = display.newRect( 0, 0, xDisplay, yDisplay)
+            indicatorBackground.x = display.contentCenterX
+            indicatorBackground.y = display.contentCenterY
+
+            indicatorBackground:setFillColor( indicatorBackgroundColors.r,
+                indicatorBackgroundColors.g, 
+                indicatorBackgroundColors.b,
+                indicatorBackgroundColors.a)
+
+            indicatorBackgroundTrasistion = transition.blink( indicatorBackground, { time=frequency } )
+        end
     end
+end
 
- end
-
-
- function scene:show( event )
+function scene:show( event )
     local sceneGroup = self.view
 
     params = event.params
@@ -152,25 +172,25 @@ function scene:create( event )
             function() 
                indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
                adjustColorService.adjustObjectColor(indicatorBackground, indicatorBackgroundColors) 
-               end,
-               0 )
+           end,
+           0 )
      end
 
      if blinkTimer == nil then
         blinkTimer = timer.performWithDelay( 500, checkIfBlinkingShouldChange, 0 )
     end
 
-     if countDownTimer == nil then
-         countDownTimer = timer.performWithDelay( 1000, function() 
-            timeService.updateTime(clockProperties) 
-            if clockProperties.secondsLeft < 1 then
-                print("scene1 going to startNewWave scene...")
-                composer.removeScene( "scenes.startNewWave", true )
-                composer.gotoScene("scenes.startNewWave", { effect = "crossFade", time = 333 })
-            end
-            end, timeToRed )
-     end
+    if countDownTimer == nil then
+     countDownTimer = timer.performWithDelay( 1000, function() 
+        timeService.updateTime(clockProperties) 
+        if clockProperties.secondsLeft < 1 then
+            print("scene1 going to startNewWave scene...")
+            composer.removeScene( "scenes.startNewWave", true )
+            composer.gotoScene("scenes.startNewWave", { effect = "crossFade", time = 333 })
+        end
+    end, timeToRed )
  end
+end
 end
 
 function scene:hide( event )
@@ -195,7 +215,6 @@ function scene:destroy( event )
 end
 
 -- run them timer
-
 
 ---------------------------------------------------------------------------------
 -- END OF YOUR IMPLEMENTATION

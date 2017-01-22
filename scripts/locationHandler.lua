@@ -13,9 +13,8 @@ function calculateDistance (locationData)
     locationData.latitudeDelta = absLatitude - absTargetLatitude
     locationData.longitudeDelta = absLongitude - absTargetLongitude
 
-    locationData.distance = math.sqrt(math.pow(math.abs(locationData.longitudeDelta), 2) + math.pow(math.abs(locationData.latitudeDelta), 2))
-    locationData.maxDistance = locationData.distance * 2
-    if locationData.distance * 2 > locationData.maxDistance then
+    locationData.distance = (math.sqrt(math.pow(math.abs(locationData.longitudeDelta), 2) + math.pow(math.abs(locationData.latitudeDelta), 2))) * 100000
+    if locationData.maxDistance == nil then
         locationData.maxDistance = locationData.distance * 2
     end
 end
