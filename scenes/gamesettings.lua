@@ -12,14 +12,15 @@ if device.isAndroid then
 end
 
 -- Handle press events for the switches
-local function onSoundSwitchPress( event )
+local function onDebugSwitchPress( event )
     local switch = event.target
 
     if switch.isOn then
-        myData.settings.soundOn = true
+        myData.settings.debugOn = false
     else
-        myData.settings.soundOn = false
+        myData.settings.debugOn = true
     end
+    print (myData.settings.debugOn)
     utility.saveTable(myData.settings, "settings.json")
 end
 
@@ -66,37 +67,23 @@ function scene:create( event )
     title:setFillColor( 0 )
     sceneGroup:insert( title )
 
-    local soundLabel = display.newText("Sound Effects", 100, 32, native.systemFont, 18 )
+    local soundLabel = display.newText("Debug Mode", 100, 32, native.systemFont, 18 )
     soundLabel.x = display.contentCenterX - 75
     soundLabel.y = 130
     soundLabel:setFillColor( 0 )
     sceneGroup:insert( soundLabel )
 
-    local soundOnOffSwitch = widget.newSwitch({
-        style = "onOff",
-        id = "soundOnOffSwitch",
-        initialSwitchState = myData.settings.soundOn,
-        onPress = onSoundSwitchPress
-    })
-    soundOnOffSwitch.x = display.contentCenterX + 100
-    soundOnOffSwitch.y = soundLabel.y
-    sceneGroup:insert( soundOnOffSwitch )
+    print(myData.settings.debugOn)
 
-    local musicLabel = display.newText("Music", 100, 32, native.systemFont, 18 )
-    musicLabel.x = display.contentCenterX - 75
-    musicLabel.y = 180
-    musicLabel:setFillColor( 0 )
-    sceneGroup:insert( musicLabel )
-
-    local musicOnOffSwitch = widget.newSwitch({
+    local debugOnOffSwitch = widget.newSwitch({
         style = "onOff",
-        id = "musicOnOffSwitch",
-        initialSwitchState = myData.settings.musicOn,
-        onPress = onMusicSwitchPress
+        id = "debugOnOffSwitch",
+        initialSwitchState = myData.settings.debugOn,
+        onPress = onDebugSwitchPress
     })
-    musicOnOffSwitch.x = display.contentCenterX + 100
-    musicOnOffSwitch.y = musicLabel.y
-    sceneGroup:insert( musicOnOffSwitch )
+    debugOnOffSwitch.x = display.contentCenterX + 100
+    debugOnOffSwitch.y = soundLabel.y
+    sceneGroup:insert( debugOnOffSwitch )
 
     -- Create the widget
     local doneButton = widget.newButton({

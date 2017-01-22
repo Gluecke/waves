@@ -84,18 +84,6 @@ function scene:create( event )
     sceneGroup:insert( settingsButton )
 
     -- Create the widget
-    local helpButton = widget.newButton({
-        id = "button3",
-        label = "Help",
-        width = 100,
-        height = 32,
-        onEvent = handleHelpButtonEvent
-    })
-    helpButton.x = display.contentCenterX
-    helpButton.y = display.contentCenterY + 30
-    sceneGroup:insert( helpButton )
-
-    -- Create the widget
     local creditsButton = widget.newButton({
         id = "button4",
         label = "Credits",

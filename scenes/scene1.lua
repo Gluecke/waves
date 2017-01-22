@@ -67,6 +67,8 @@ function scene:create( event )
         native.systemFont, 
         yDisplay * .09)
 
+     checkForDebugMode(clockProperties.clockText)
+
      sceneGroup:insert(clockProperties.clockText)
      
      -- local ambientBackground = display.newRect( 0, 0, xDisplay, yDisplay * .5)
@@ -106,12 +108,20 @@ function scene:create( event )
      locationData.xLocationDisplay = xDisplay * .5
      locationData.yLocationDisplay = yDisplay
 
-     locationData.latitudeText = display.newText( "latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .1, native.systemFont, 16 )
-     locationData.longitudeText = display.newText( "longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .2, native.systemFont, 16 )
-     locationData.targetLatitudeText = display.newText( "target latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
-     locationData.targetLongitudeText = display.newText( "target longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .45, native.systemFont, 16 )
-     locationData.distanceText = display.newText( "distance : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .3, native.systemFont, 16 )
-     locationData.blinkText = display.newText( "blink : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .55, native.systemFont, 16 )
+     locationData.latitudeText = display.newText( "latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
+     checkForDebugMode(locationData.latitudeText)
+     locationData.longitudeText = display.newText( "longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .45, native.systemFont, 16 )
+     checkForDebugMode(locationData.longitudeText)
+     locationData.targetLatitudeText = display.newText( "target latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .55, native.systemFont, 16 )
+     checkForDebugMode(locationData.targetLatitudeText)
+     locationData.targetLongitudeText = display.newText( "target longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .6, native.systemFont, 16 )
+     checkForDebugMode(locationData.targetLongitudeText)
+     locationData.distanceText = display.newText( "distance : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .65, native.systemFont, 16 )
+     checkForDebugMode(locationData.distanceText)
+     locationData.blinkText = display.newText( "blink : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .7, native.systemFont, 16 )
+     checkForDebugMode(locationData.blinkText)
+     locationData.shield = display.newImage( "sheild.png", xDisplay * .5, yDisplay * .25 )
+     locationData.shield:scale( .1, .1 )
 
      locationData.isPopulated = true
 
@@ -121,17 +131,30 @@ function scene:create( event )
      sceneGroup:insert(locationData.targetLatitudeText)
      sceneGroup:insert(locationData.targetLongitudeText)
      sceneGroup:insert(locationData.blinkText)
+     sceneGroup:insert(locationData.shield)
 
-     print("rounded : " .. utility.round(26500, -3))
+     print("rounded : " .. utility.round(((8 / 88) * 44) * 1000 * 2, -3))
 
  end
 
+ function checkForDebugMode ( objectToAlpha )
+    if sceneConfigData.settings.debugOn == false then
+        objectToAlpha.alpha = 0
+    else 
+        objectToAlpha.alpha = 1
+    end
+end
+
+
  function checkIfBlinkingShouldChange( event ) 
     if locationData ~= nil and locationData.hasCoordinates ~= nil then
-        local ratioToConvertDistanceToFrequency = 10000
-        local frequency = utility.round(((6 / locationData.maxDistance) * locationData.distance) * ratioToConvertDistanceToFrequency, -2)
+        local ratioToConvertDistanceToFrequency = 1000 * 2
+        local frequency = utility.round(((8 / locationData.maxDistance) * locationData.distance) * ratioToConvertDistanceToFrequency, -3)
         locationData.blinkText.text = "new frequency : " .. frequency
-        if locationData.frequency == nil or frequency ~= locationData.frequency then
+        if frequency < 500 then
+            frequency = 500
+        end
+        if locationData.frequency == nil or (frequency ~= locationData.frequency) then
             if locationData.frequency ~= nil then
                 locationData.blinkText.text = "new frequency : " .. frequency .. " old frequency : " .. locationData.frequency
             end
@@ -140,8 +163,10 @@ function scene:create( event )
                 transition.cancel(indicatorBackgroundTrasistion)
                 indicatorBackgroundTrasistion = nil
             end
-            indicatorBackground:removeSelf()
-            indicatorBackground = nil
+            if indicatorBackground ~= nil then
+                indicatorBackground:removeSelf()
+                indicatorBackground = nil
+            end
 
             indicatorBackground = display.newRect( 0, 0, xDisplay, yDisplay)
             indicatorBackground.x = display.contentCenterX
@@ -168,20 +193,25 @@ function scene:show( event )
 
         print("making scene1 timers...")
         if indicatorBackgroundRedShiftTimer == nil then
-         indicatorBackgroundRedShiftTimer = timer.performWithDelay( indicatorBackgroundRedShiftTimerDelay, 
+           indicatorBackgroundRedShiftTimer = timer.performWithDelay( indicatorBackgroundRedShiftTimerDelay, 
             function() 
-               indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
-               adjustColorService.adjustObjectColor(indicatorBackground, indicatorBackgroundColors) 
-           end,
-           0 )
-     end
+             indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
+             adjustColorService.adjustObjectColor(indicatorBackground, indicatorBackgroundColors) 
+         end,
+         0 )
+       end
 
-     if blinkTimer == nil then
+       if blinkTimer == nil then
         blinkTimer = timer.performWithDelay( 500, checkIfBlinkingShouldChange, 0 )
     end
 
+    if indicatorBackground ~= nil then
+        indicatorBackground:removeSelf()
+        indicatorBackground = nil
+    end
+
     if countDownTimer == nil then
-     countDownTimer = timer.performWithDelay( 1000, function() 
+       countDownTimer = timer.performWithDelay( 1000, function() 
         timeService.updateTime(clockProperties) 
         if clockProperties.secondsLeft < 1 then
             print("scene1 going to startNewWave scene...")
@@ -189,7 +219,7 @@ function scene:show( event )
             composer.gotoScene("scenes.startNewWave", { effect = "crossFade", time = 333 })
         end
     end, timeToRed )
- end
+   end
 end
 end
 
@@ -205,12 +235,30 @@ function scene:hide( event )
         blinkTimer = nil
         countDownTimer = nil
         locationData = nil
+
+                    if indicatorBackgroundTrasistion ~= nil then
+                transition.cancel(indicatorBackgroundTrasistion)
+                indicatorBackgroundTrasistion = nil
+            end
+            if indicatorBackground ~= nil then
+                indicatorBackground:removeSelf()
+                indicatorBackground = nil
+            end
     end
 
 end
 
 function scene:destroy( event )
     local sceneGroup = self.view
+
+                if indicatorBackgroundTrasistion ~= nil then
+                transition.cancel(indicatorBackgroundTrasistion)
+                indicatorBackgroundTrasistion = nil
+            end
+            if indicatorBackground ~= nil then
+                indicatorBackground:removeSelf()
+                indicatorBackground = nil
+            end
     
 end
 

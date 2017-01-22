@@ -10,8 +10,8 @@ function calculateTargetLocationData (locationData)
 	--numbers to be replaced with random seed based on time
 	math.randomseed(utility.round(os.time(t), -1))
 
-	local latitudeDeltaSeed = math.random(sceneConfigData.lowerCoordinateDelta, sceneConfigData.upperCoordinateDelta) * 0.0001
-	local longitudeDeltaSeed = math.random(sceneConfigData.lowerCoordinateDelta, sceneConfigData.upperCoordinateDelta) * 0.0001
+	local latitudeDeltaSeed = (math.random(sceneConfigData.lowerCoordinateDelta, sceneConfigData.upperCoordinateDelta) * 0.0001) * setPosOrNeg()
+	local longitudeDeltaSeed = (math.random(sceneConfigData.lowerCoordinateDelta, sceneConfigData.upperCoordinateDelta) * 0.0001) * setPosOrNeg()
 
 	locationData.targetLatitude = currentLatitude + latitudeDeltaSeed
 	locationData.targetLongitude = currentLongitude + longitudeDeltaSeed
@@ -20,6 +20,15 @@ function calculateTargetLocationData (locationData)
 	print("target latitude : " .. locationData.targetLatitude)
 	print("target longitude : " .. locationData.targetLongitude)
 
+end
+
+function setPosOrNeg ()
+	local rand = math.random( 1, 2 )
+	if rand == 1 then
+		return 1
+	else
+		return -1
+	end
 end
 
 M.calculateTargetLocationData = calculateTargetLocationData

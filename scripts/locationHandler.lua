@@ -54,6 +54,12 @@ function locationHandler ( event, locationData)
             locationData.targetLongitudeText.text = string.format("target longitude : %s", targetLatitudeText)
 
             locationData.hasCoordinates = true
+
+            if locationData.longitudeDelta < 0 then
+                locationData.shield.y = locationData.yLocationDisplay * .75
+            else
+                locationData.shield.y = locationData.yLocationDisplay * .25
+            end
         end
     end
 end

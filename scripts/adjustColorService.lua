@@ -16,8 +16,10 @@ g = boundColorToLimitOfOne(colors.g)
 b = boundColorToLimitOfOne(colors.b)
 a = boundColorToLimitOfOne(colors.a)
 
+if objectToChangeColor ~= nil then
 objectToChangeColor:setFillColor(r, g, b, a)
 -- print("r: " .. r .. " g: " .. g .. " b: " .. b .. " a: " .. a)
+end
 end
 
 M.adjustObjectColor = adjustObjectColor
