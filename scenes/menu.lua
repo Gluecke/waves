@@ -48,16 +48,47 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-    local background = display.newRect( 0, 0, 570, 360 )
+
+    local xDisplay = display.contentWidth
+    local yDisplay = display.contentHeight
+
+    local background = display.newRect( 0, 0, xDisplay, yDisplay )
     background.x = display.contentCenterX
     background.y = display.contentCenterY
-    sceneGroup:insert( background )
 
-    local title = display.newText("Game Title", 100, 32, native.systemFontBold, 32 )
-    title.x = display.contentCenterX
-    title.y = 40
-    title:setFillColor( 0 )
+backgroundColors = {}
+
+    backgroundColors.r = sceneConfigData.r
+     backgroundColors.g = sceneConfigData.g
+     backgroundColors.b = sceneConfigData.b
+     backgroundColors.a = sceneConfigData.a
+
+     background:setFillColor( backgroundColors.r,
+        backgroundColors.g, 
+        backgroundColors.b,
+        backgroundColors.a)
+     sceneGroup:insert(background)
+
+     local sun = display.newImage( "losesun.png", xDisplay * .5, yDisplay * .33 )
+     sun:scale(.2, .2)
+     sceneGroup:insert(sun)
+
+    local title = display.newText("IRL Endless", 100, 32, "wavy", 45 )
+    local subTitle = display.newText("Runner", 100, 32, "wavy", 45 )
+    subTitle.x = xDisplay * .5
+    subTitle.y = yDisplay * .78
+    title.x = xDisplay * .5
+    title.y = yDisplay * .7
+
+local gradient = {
+    type="gradient",
+    color1={ 1, 1, 0 }, color2={ 1, 1, .9 }, direction="down"
+}
+
+    subTitle:setFillColor(gradient  )
+    title:setFillColor( gradient )
     sceneGroup:insert( title )
+    sceneGroup:insert( subTitle )
 
     -- Create the widget
     local playButton = widget.newButton({
@@ -67,8 +98,8 @@ function scene:create( event )
         height = 32,
         onEvent = handlePlayButtonEvent
     })
-    playButton.x = display.contentCenterX
-    playButton.y = display.contentCenterY - 90
+    playButton.x = xDisplay * .5
+    playButton.y = yDisplay * .875
     sceneGroup:insert( playButton )
 
     -- Create the widget
@@ -79,8 +110,8 @@ function scene:create( event )
         height = 32,
         onEvent = handleSettingsButtonEvent
     })
-    settingsButton.x = display.contentCenterX
-    settingsButton.y = display.contentCenterY - 30
+    settingsButton.x = xDisplay * .25
+    settingsButton.y = yDisplay * .95
     sceneGroup:insert( settingsButton )
 
     -- Create the widget
@@ -91,8 +122,8 @@ function scene:create( event )
         height = 32,
         onEvent = handleCreditsButtonEvent
     })
-    creditsButton.x = display.contentCenterX
-    creditsButton.y = display.contentCenterY + 90
+    creditsButton.x = xDisplay * .75
+    creditsButton.y = yDisplay * .95
     sceneGroup:insert( creditsButton )
 
 end
