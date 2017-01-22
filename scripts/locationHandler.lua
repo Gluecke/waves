@@ -14,6 +14,10 @@ function calculateDistance (locationData)
     locationData.longitudeDelta = absLongitude - absTargetLongitude
 
     locationData.distance = math.sqrt(math.pow(math.abs(locationData.longitudeDelta), 2) + math.pow(math.abs(locationData.latitudeDelta), 2))
+    locationData.maxDistance = locationData.distance * 2
+    if locationData.distance * 2 > locationData.maxDistance then
+        locationData.maxDistance = locationData.distance * 2
+    end
 end
 
 function locationHandler ( event, locationData)
@@ -25,7 +29,7 @@ function locationHandler ( event, locationData)
         native.showAlert( "GPS Location Error", event.errorMessage, {"OK"} )
         print( "Location error: " .. tostring( event.errorMessage ) )
     else
-        if locationData ~= nil then
+        if locationData ~= nil and locationData.isPopulated ~= nil then
             locationData.latitude = event.latitude
             local latitudeText = string.format( '%.5f', event.latitude )
             locationData.latitudeText.text = string.format("latitude : %s" , latitudeText)
@@ -49,6 +53,8 @@ function locationHandler ( event, locationData)
 
             local targetLatitudeText = string.format( '%.5f', locationData.targetLongitude)
             locationData.targetLongitudeText.text = string.format("target longitude : %s", targetLatitudeText)
+
+            locationData.hasCoordinates = true
         end
     end
 end

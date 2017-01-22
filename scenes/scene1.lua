@@ -7,6 +7,7 @@ local sceneConfigData = require( "scripts.sceneConfigData" )
 local timeService = require( "scripts.timeService" )
 local locationHandler = require( "scripts.locationHandler" )
 local adjustColorService = require("scripts.adjustColorService")
+local blinkObject = require("scripts.blinkObject")
 
 local params
 
@@ -16,15 +17,6 @@ local yDisplay = display.contentHeight
 
 --text for displaying location information
 local locationData = {}
-
-locationData.xLocationDisplay = xDisplay * .5
-locationData.yLocationDisplay = yDisplay
-
-locationData.latitudeText = display.newText( "latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .1, native.systemFont, 16 )
-locationData.longitudeText = display.newText( "longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .2, native.systemFont, 16 )
-locationData.targetLatitudeText = display.newText( "target latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
-locationData.targetLongitudeText = display.newText( "target longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .45, native.systemFont, 16 )
-locationData.distanceText = display.newText( "distance : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .3, native.systemFont, 16 )
 
 --var to be used for time before player dies
 local clockProperties = {}
@@ -110,12 +102,40 @@ function scene:create( event )
      doneButton.y = display.contentHeight - 40
      sceneGroup:insert( doneButton )
 
+
+     locationData = {}
+     locationData.xLocationDisplay = xDisplay * .5
+     locationData.yLocationDisplay = yDisplay
+
+     locationData.latitudeText = display.newText( "latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .1, native.systemFont, 16 )
+     locationData.longitudeText = display.newText( "longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .2, native.systemFont, 16 )
+     locationData.targetLatitudeText = display.newText( "target latitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .4, native.systemFont, 16 )
+     locationData.targetLongitudeText = display.newText( "target longitude : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .45, native.systemFont, 16 )
+     locationData.distanceText = display.newText( "distance : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .3, native.systemFont, 16 )
+     locationData.blinkText = display.newText( "blink : ", locationData.xLocationDisplay, locationData.yLocationDisplay * .55, native.systemFont, 16 )
+
+     locationData.isPopulated = true
+
      sceneGroup:insert(locationData.latitudeText)
      sceneGroup:insert(locationData.longitudeText)
      sceneGroup:insert(locationData.distanceText)
      sceneGroup:insert(locationData.targetLatitudeText)
      sceneGroup:insert(locationData.targetLongitudeText)
+
+     transition.blink( indicatorBackground, { time=1500 } )
+
  end
+
+ function checkIfBlinkingShouldChange( event ) 
+
+    if locationData ~= nil and locationData.hasCoordinates ~= nil then
+        local frequency = ((3 / locationData.maxDistance) * locationData.distance) * 1000
+        locationData.blinkText.text = frequency
+        transition.blink( indicatorBackground, { time=frequency } )
+    end
+
+ end
+
 
  function scene:show( event )
     local sceneGroup = self.view
@@ -127,7 +147,7 @@ function scene:create( event )
     if event.phase == "did" then
 
         print("making scene1 timers...")
-        if indicatorBackgroundRedShiftTimer == nill then
+        if indicatorBackgroundRedShiftTimer == nil then
          indicatorBackgroundRedShiftTimer = timer.performWithDelay( indicatorBackgroundRedShiftTimerDelay, 
             function() 
                indicatorBackgroundColors.r = indicatorBackgroundColors.r + incrementRed
@@ -136,7 +156,11 @@ function scene:create( event )
                0 )
      end
 
-     if countDownTimer == nill then
+     if blinkTimer == nil then
+        blinkTimer = timer.performWithDelay( 500, checkIfBlinkingShouldChange, 0 )
+    end
+
+     if countDownTimer == nil then
          countDownTimer = timer.performWithDelay( 1000, function() 
             timeService.updateTime(clockProperties) 
             if clockProperties.secondsLeft < 1 then
@@ -157,7 +181,10 @@ function scene:hide( event )
         timer.cancel(indicatorBackgroundRedShiftTimer)
         indicatorBackgroundRedShiftTimer = nil
         timer.cancel(countDownTimer)
+        timer.cancel(blinkTimer)
+        blinkTimer = nil
         countDownTimer = nil
+        locationData = nil
     end
 
 end
